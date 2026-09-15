@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>劉育齊 Hugo｜個人網站</title>
+<meta name="description" content="劉育齊（Hugo Liu）個人網站：個人簡介與履歷、說明會線上報名表單。SAP ERP 顧問實習生、資訊管理系學生。">
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --ink:#1b1f24; --muted:#606a76;
+    --line:#dde1e6; --line-strong:#c3cad2;
+    --brand:#1f5fd0; --brand-ink:#12408f; --brand-soft:#eaf1fe;
+    --ok:#1a7f4b; --ok-soft:#e8f6ee;
+    --err:#c0392b; --err-soft:#fdecea;
+    --warn:#8a5a00; --warn-soft:#fff5e0;
+    --radius:10px;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}   /* .field 的 display:flex 會蓋掉 hidden，必須補這行 */
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px; line-height:1.65;
+    padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);
+  }
+  .wrap{max-width:860px; margin:0 auto; padding-block:28px 60px}
+
+  header.page{margin-bottom:22px}
+  header.page h1{font-size:26px; margin:0 0 6px; letter-spacing:.5px}
+  header.page p{margin:0; color:var(--muted); font-size:14px}
+
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px; margin-bottom:18px;
+  }
+  .card > h2{
+    font-size:17px; margin:0 0 4px; display:flex; align-items:center; gap:8px;
+  }
+  .card > h2 .num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:24px; height:24px; border-radius:50%; background:var(--brand-soft);
+    color:var(--brand-ink); font-size:13px; font-weight:700; flex:0 0 auto;
+  }
+  .card > .hint{margin:0 0 18px; color:var(--muted); font-size:13px}
+
+  .grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 16px}
+  .grid .full{grid-column:1/-1}
+  @media (max-width:640px){ .grid{grid-template-columns:1fr} }
+
+  .field{display:flex; flex-direction:column; gap:6px; min-width:0}
+  .field label{font-size:13.5px; font-weight:600}
+  .req::after{content:"必填"; margin-left:6px; font-size:11px; font-weight:600;
+    color:var(--err); background:var(--err-soft); padding:1px 6px; border-radius:99px}
+  .opt::after{content:"選填"; margin-left:6px; font-size:11px; font-weight:600;
+    color:var(--muted); background:#eef1f4; padding:1px 6px; border-radius:99px}
+
+  input[type=text],input[type=email],input[type=tel],input[type=date],
+  input[type=number],select,textarea{
+    width:100%; padding:9px 11px; font:inherit; font-size:14.5px; color:var(--ink);
+    background:#fff; border:1px solid var(--line-strong); border-radius:8px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  textarea{resize:vertical; min-height:88px}
+  input:focus,select:focus,textarea:focus{
+    outline:none; border-color:var(--brand); box-shadow:0 0 0 3px rgba(31,95,208,.15);
+  }
+  input[readonly]{background:#f7f8fa; color:var(--muted)}
+  .tip{font-size:12px; color:var(--muted)}
+  .msg{font-size:12.5px; min-height:0; display:none; gap:5px; align-items:flex-start}
+  .msg.show{display:flex}
+  .msg.error{color:var(--err)} .msg.warn{color:var(--warn)} .msg.good{color:var(--ok)}
+
+  .field.invalid input,.field.invalid select,.field.invalid textarea{
+    border-color:var(--err); background:var(--err-soft);
+  }
+  .field.valid input,.field.valid select,.field.valid textarea{border-color:#8bc7a3}
+
+  fieldset{border:0; margin:0; padding:0; min-width:0}
+  fieldset > legend{font-size:13.5px; font-weight:600; padding:0; margin-bottom:6px}
+  .choices{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{
+    display:inline-flex; align-items:center; gap:7px; padding:8px 13px;
+    border:1px solid var(--line-strong); border-radius:99px; cursor:pointer;
+    font-size:14px; background:#fff; user-select:none;
+  }
+  .chip:has(input:checked){border-color:var(--brand); background:var(--brand-soft); color:var(--brand-ink); font-weight:600}
+  .chip:has(input:disabled){opacity:.45; cursor:not-allowed}
+  .chip input{accent-color:var(--brand); margin:0}
+
+  .sessions{display:flex; flex-direction:column; gap:10px}
+  .session{
+    display:flex; gap:12px; align-items:flex-start; padding:13px 14px;
+    border:1px solid var(--line-strong); border-radius:var(--radius); cursor:pointer; background:#fff;
+  }
+  .session:has(input:checked){border-color:var(--brand); background:var(--brand-soft); box-shadow:0 0 0 1px var(--brand) inset}
+  .session:has(input:disabled){opacity:.5; cursor:not-allowed; background:#fafbfc}
+  .session input{margin-top:4px; accent-color:var(--brand)}
+  .session .s-main{flex:1; min-width:0}
+  .session .s-title{font-weight:600; font-size:14.5px}
+  .session .s-meta{font-size:12.5px; color:var(--muted); margin-top:2px}
+  .badge{display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:99px; font-weight:600}
+  .badge.left{background:var(--ok-soft); color:var(--ok)}
+  .badge.few{background:var(--warn-soft); color:var(--warn)}
+  .badge.none{background:var(--err-soft); color:var(--err)}
+
+  .agree{display:flex; gap:10px; align-items:flex-start; font-size:13.5px}
+  .agree input{margin-top:4px; accent-color:var(--brand); flex:0 0 auto}
+  .policy{
+    max-height:150px; overflow:auto; border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; font-size:12.5px; color:var(--muted); background:#fafbfc; margin-bottom:12px;
+  }
+  .counter{font-size:12px; color:var(--muted); text-align:right}
+  .counter.over{color:var(--err); font-weight:600}
+
+  .summary-box{
+    display:none; border:1px solid var(--err); background:var(--err-soft);
+    border-radius:var(--radius); padding:14px 16px; margin-bottom:18px;
+  }
+  .summary-box.show{display:block}
+  .summary-box h3{margin:0 0 8px; font-size:14.5px; color:var(--err)}
+  .summary-box ol{margin:0; padding-left:20px; font-size:13.5px}
+  .summary-box a{color:var(--err); text-decoration:underline; cursor:pointer}
+
+  .actions{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+  button{
+    font:inherit; font-size:15px; font-weight:600; padding:11px 22px; border-radius:8px;
+    border:1px solid transparent; cursor:pointer; transition:filter .15s;
+  }
+  button:hover:not(:disabled){filter:brightness(.94)}
+  button:disabled{opacity:.6; cursor:not-allowed}
+  .btn-primary{background:var(--brand); color:#fff}
+  .btn-ghost{background:#fff; color:var(--ink); border-color:var(--line-strong)}
+  .progress{
+    height:6px; background:var(--line); border-radius:99px; overflow:hidden; margin:6px 0 20px;
+  }
+  .progress > i{display:block; height:100%; width:0; background:var(--brand); transition:width .25s}
+  .progress-label{font-size:12.5px; color:var(--muted); margin-bottom:4px}
+
+  /* 完成畫面 */
+  #done{display:none}
+  #done.show{display:block}
+  .done-head{display:flex; gap:12px; align-items:center; margin-bottom:6px}
+  .tick{width:34px;height:34px;border-radius:50%;background:var(--ok-soft);color:var(--ok);
+    display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;flex:0 0 auto}
+  table.recap{width:100%; border-collapse:collapse; font-size:14px; margin-top:14px}
+  table.recap th,table.recap td{border-bottom:1px solid var(--line); padding:9px 6px; text-align:left; vertical-align:top}
+  table.recap th{width:38%; color:var(--muted); font-weight:600; white-space:nowrap}
+  .code{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px}
+  .site-foot{border-top:1px solid var(--line); margin-top:28px; padding-top:16px;
+    font-size:13px; color:var(--muted)}
+  .site-foot p{margin:0 0 6px}
+  .site-foot a{color:var(--brand-ink)}
+  .summary-box h2{margin:0 0 8px; font-size:14.5px; color:var(--err)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  @media print{
+    body{background:#fff} .no-print{display:none!important} .card{border:none; padding:0}
+  }
+
+  /* ================= 個人網站外框 ================= */
+  .site-head{
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:50;
+    background:rgba(255,255,255,.92); backdrop-filter:saturate(180%) blur(8px);
+    border-bottom:1px solid var(--line);
+    padding:10px 16px calc(10px + env(safe-area-inset-top,0px));
+    margin:0 -16px 0;
+  }
+  .site-head .inner{max-width:900px; margin:0 auto; display:flex; align-items:center;
+    gap:14px; flex-wrap:wrap}
+  .brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); margin-right:auto}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:var(--brand);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;letter-spacing:.5px}
+  .brand b{font-size:15.5px; display:block; line-height:1.25}
+  .brand span{font-size:12px; color:var(--muted)}
+  .tabs{display:flex; gap:6px; flex-wrap:wrap}
+  .tabs a{
+    text-decoration:none; color:var(--muted); font-size:14px; font-weight:600;
+    padding:7px 14px; border-radius:99px; border:1px solid transparent; white-space:nowrap;
+  }
+  .tabs a:hover{background:#eef1f5; color:var(--ink)}
+  .tabs a[aria-current="page"]{background:var(--brand-soft); color:var(--brand-ink); border-color:#c3d8fa}
+  .tabs a:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
+
+  .view{display:none}
+  .view.active{display:block; animation:fade .22s ease}
+  @keyframes fade{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none}}
+
+  /* ---- 首頁 ---- */
+  .hero{padding:52px 0 34px; text-align:center}
+  .hero .avatar{
+    width:92px;height:92px;border-radius:50%; margin:0 auto 18px;
+    background:linear-gradient(135deg,var(--brand),#5b8def); color:#fff;
+    display:flex;align-items:center;justify-content:center; font-size:32px; font-weight:700;
+    box-shadow:0 8px 24px rgba(31,95,208,.28);
+  }
+  .hero h1{font-size:33px; margin:0 0 8px; letter-spacing:.5px}
+  .hero .role{font-size:16px; color:var(--brand-ink); font-weight:600; margin:0 0 14px}
+  .hero .lede{max-width:600px; margin:0 auto 24px; color:var(--muted); font-size:15px}
+  .hero-cta{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  .hero-cta a{
+    text-decoration:none; font-size:15px; font-weight:600; padding:11px 22px; border-radius:8px;
+    border:1px solid transparent; display:inline-block;
+  }
+  .hero-cta a.primary{background:var(--brand); color:#fff}
+  .hero-cta a.ghost{background:#fff; color:var(--ink); border-color:var(--line-strong)}
+  .hero-cta a:hover{filter:brightness(.95)}
+
+  .cards2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:8px}
+  @media (max-width:640px){ .cards2{grid-template-columns:1fr} .hero h1{font-size:27px} }
+  a.nav-card{
+    display:block; text-decoration:none; color:inherit; background:var(--card);
+    border:1px solid var(--line); border-radius:var(--radius); padding:22px;
+    transition:border-color .15s, transform .15s, box-shadow .15s;
+  }
+  a.nav-card:hover{border-color:var(--brand); transform:translateY(-2px); box-shadow:0 6px 18px rgba(16,24,40,.07)}
+  a.nav-card .ico{font-size:22px}
+  a.nav-card h3{margin:8px 0 6px; font-size:17px}
+  a.nav-card p{margin:0; font-size:13.5px; color:var(--muted)}
+  a.nav-card .go{margin-top:12px; font-size:13.5px; font-weight:600; color:var(--brand-ink)}
+
+  .facts{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:26px 0 4px}
+  @media (max-width:640px){ .facts{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  .fact{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px}
+  .fact b{display:block; font-size:19px; color:var(--brand-ink)}
+  .fact span{font-size:12.5px; color:var(--muted)}
+
+  /* ---- 履歷 ---- */
+  .page-title{margin:30px 0 20px}
+  .page-title h1{font-size:26px; margin:0 0 6px}
+  .page-title p{margin:0; color:var(--muted); font-size:14px}
+  .resume-grid{display:grid; grid-template-columns:minmax(0,1fr) 270px; gap:18px; align-items:start}
+  @media (max-width:820px){ .resume-grid{grid-template-columns:1fr} }
+  .side{position:sticky; top:86px}
+  @media (max-width:820px){ .side{position:static} }
+  dl.contact{margin:0; font-size:13.5px}
+  dl.contact dt{color:var(--muted); font-size:12px; margin-top:10px}
+  dl.contact dt:first-child{margin-top:0}
+  dl.contact dd{margin:2px 0 0; word-break:break-all}
+  dl.contact a{color:var(--brand-ink)}
+  .taglist{display:flex; flex-wrap:wrap; gap:6px; margin:0; padding:0; list-style:none}
+  .taglist li{font-size:12.5px; background:#eef2f7; color:#33404f; padding:3px 9px; border-radius:99px}
+  .taglist li.key{background:var(--brand-soft); color:var(--brand-ink); font-weight:600}
+
+  .timeline{list-style:none; margin:0; padding:0 0 0 20px; border-left:2px solid var(--line)}
+  .timeline > li{position:relative; padding:0 0 20px 18px}
+  .timeline > li:last-child{padding-bottom:0}
+  .timeline > li::before{
+    content:""; position:absolute; left:-27px; top:5px; width:11px; height:11px;
+    border-radius:50%; background:#fff; border:2.5px solid var(--brand);
+  }
+  .timeline .when{font-size:12.5px; color:var(--muted)}
+  .timeline h3{margin:2px 0 2px; font-size:15.5px}
+  .timeline .org{font-size:13.5px; color:var(--brand-ink); font-weight:600}
+  .timeline ul{margin:7px 0 0; padding-left:19px; font-size:13.5px; color:#3b4654}
+  .timeline ul li{margin-bottom:3px}
+
+  .proj{border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; margin-bottom:12px; background:#fcfdff}
+  .proj h3{margin:0 0 4px; font-size:15.5px}
+  .proj .meta{font-size:12.5px; color:var(--muted); margin-bottom:8px}
+  .proj p{margin:0 0 8px; font-size:13.5px}
+  .stages{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:10px 0 4px}
+  @media (max-width:640px){ .stages{grid-template-columns:1fr} }
+  .stage{background:#fff; border:1px solid var(--line); border-radius:8px; padding:11px 12px}
+  .stage b{display:block; font-size:12px; color:var(--brand-ink); margin-bottom:3px}
+  .stage span{font-size:12.5px; color:#3b4654}
+  .skillrow{display:grid; grid-template-columns:110px minmax(0,1fr); gap:10px; font-size:13.5px; margin-bottom:10px}
+  @media (max-width:520px){ .skillrow{grid-template-columns:1fr; gap:4px} }
+  .skillrow > b{color:var(--muted); font-weight:600; font-size:12.5px}
+</style>
+</head>
+<body>
+<a href="#main" class="sr">跳到主要內容</a>
+
+<header class="site-head">
+  <div class="inner">
+    <a class="brand" href="#/home">
+      <span class="logo" aria-hidden="true">HL</span>
+      <span><b>劉育齊 Hugo</b><span>SAP ERP 顧問實習生</span></span>
+    </a>
+    <nav class="tabs" aria-label="主要導覽">
+      <a href="#/home"   id="tab-home">首頁</a>
+      <a href="#/resume" id="tab-resume">個人簡介</a>
+      <a href="#/form"   id="tab-form">說明會表單</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <main id="main">
+      <!-- ========== 首頁 ========== -->
+      <section class="view" id="view-home" aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="avatar" aria-hidden="true">HL</div>
+          <h1 id="homeTitle">劉育齊　Hugo Liu</h1>
+          <p class="role">SAP ERP 顧問實習生 ・ 資訊管理系學生</p>
+          <p class="lede">
+            高職電子科出身，現就讀國立勤益科技大學資訊管理系。
+            在國立中央大學 ERP 學會擔任 SAP 顧問實習生，參與製造業客戶的 SAP S/4HANA 導入專案，
+            專長是把商業流程問題拆解成可落地的系統方案。目標是成為 ERP 導入顧問。
+          </p>
+          <div class="hero-cta">
+            <a class="primary" href="#/resume">看我的個人簡介</a>
+            <a class="ghost" href="#/form">前往說明會報名</a>
+          </div>
+        </div>
+
+        <div class="facts">
+          <div class="fact"><b>S/4HANA</b><span>實際客戶導入專案</span></div>
+          <div class="fact"><b>SD / MM / PP</b><span>模組實作經驗</span></div>
+          <div class="fact"><b>ERP 規劃師</b><span>大一取得證照</span></div>
+          <div class="fact"><b>ABAP + Python</b><span>整合層自行開發</span></div>
+        </div>
+
+        <h2 class="sr">網站導覽</h2>
+        <div class="cards2" style="margin-top:20px">
+          <a class="nav-card" href="#/resume">
+            <div class="ico" aria-hidden="true">📄</div>
+            <h3>個人簡介</h3>
+            <p>學歷、實習經歷、SAP 專案與技術能力的完整履歷。</p>
+            <div class="go">查看履歷 →</div>
+          </a>
+          <a class="nav-card" href="#/form">
+            <div class="ico" aria-hidden="true">📝</div>
+            <h3>說明會表單</h3>
+            <p>線上報名說明會場次，含完整欄位驗證與防呆設計。</p>
+            <div class="go">立即報名 →</div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ========== 個人簡介 ========== -->
+      <section class="view" id="view-resume" aria-labelledby="resumeTitle">
+        <div class="page-title">
+          <h1 id="resumeTitle">個人簡介</h1>
+          <p>Curriculum Vitae ・ 最後更新 2026 年 9 月</p>
+        </div>
+
+        <div class="resume-grid">
+          <div>
+            <!-- 關於我 -->
+            <section class="card" aria-labelledby="r-about">
+              <h2 id="r-about">關於我</h2>
+              <p style="margin:0; font-size:14px">
+                我從高職電子科一路轉到資訊管理，習慣從系統層級思考問題：遇到錯誤時不接受繞過的做法，
+                而是追到根本原因為止。這個習慣在 SAP 組織架構設定與跨系統整合上特別有用——
+                多數卡關並不是操作錯誤，而是前置設定缺了一環。
+              </p>
+              <p style="margin:10px 0 0; font-size:14px">
+                目前專注在製造業的需求規劃領域，把 SAP 標準功能與外部訊號結合，
+                讓預測結果既可解釋、又能反映真實市場事件。中程目標是進入 ERP 顧問領域。
+              </p>
+            </section>
+
+            <!-- 經歷 -->
+            <section class="card" aria-labelledby="r-exp">
+              <h2 id="r-exp">經歷</h2>
+              <ol class="timeline">
+                <li>
+                  <p class="when">現職</p>
+                  <h3>SAP 顧問實習生</h3>
+                  <p class="org">國立中央大學 ERP 學會</p>
+                  <ul>
+                    <li>參與製造業客戶 SAP S/4HANA 實際導入專案，負責需求規劃（PP）相關設計</li>
+                    <li>自行開發 SAP 與外部 AI 服務的整合層，並完成 SD-to-PP 整合流程的客戶簡報</li>
+                  </ul>
+                </li>
+                <li>
+                  <p class="when">在學</p>
+                  <h3>資訊管理系 學生</h3>
+                  <p class="org">國立勤益科技大學</p>
+                  <ul>
+                    <li>大一取得 ERP 規劃師證照</li>
+                    <li>在教學環境中從零建置完整企業組織架構並完成 SD 銷售流程實作</li>
+                  </ul>
+                </li>
+                <li>
+                  <p class="when">校園服務</p>
+                  <h3>宿舍幹部（衛生組）</h3>
+                  <p class="org">國立勤益科技大學 學生宿舍</p>
+                  <ul>
+                    <li>負責固定值勤時段與每月幹部會議，執行例行環境檢查作業</li>
+                  </ul>
+                </li>
+                <li>
+                  <p class="when">高職階段</p>
+                  <h3>電子科 ・ 全國電子類競賽 第二名</h3>
+                  <p class="org">台北城市科技大學 舉辦</p>
+                  <ul>
+                    <li>電子電路與硬體實作訓練，奠定系統層級的技術思考基礎</li>
+                  </ul>
+                </li>
+              </ol>
+            </section>
+
+            <!-- 代表專案 -->
+            <section class="card" aria-labelledby="r-proj">
+              <h2 id="r-proj">代表專案</h2>
+              <p class="hint">SAP S/4HANA 導入 ・ AI 輔助需求預測架構</p>
+
+              <article class="proj">
+                <h3>製造業客戶 S/4HANA 導入｜AI 輔助需求預測</h3>
+                <p class="meta">角色：需求預測架構設計與整合開發 ・ 模組：PP / MM / SD</p>
+                <p>
+                  客戶的核心困境是結構性的時間落差：關鍵原料採購前置期約 3 個月，
+                  但客戶期望交期僅 1 個月。這使得「預測準確度」直接決定備料策略能否成立。
+                </p>
+                <p>
+                  我設計的是<b>混合式三階段架構</b>，刻意保留 SAP 統計基準線作為備援，
+                  而不是讓 AI 取代整條預測邏輯——這樣才具備可解釋性，AI 服務異常時也能優雅降級。
+                </p>
+                <div class="stages">
+                  <div class="stage"><b>Stage 1｜基準線</b><span>以 SAP 標準統計預測產出基礎需求量</span></div>
+                  <div class="stage"><b>Stage 2｜殘差修正</b><span>Python 模型補捉統計方法抓不到的外部事件訊號</span></div>
+                  <div class="stage"><b>Stage 3｜寫回 SAP</b><span>透過 BAPI 寫回計畫獨立需求，驅動 MPS／MRP</span></div>
+                </div>
+                <ul class="taglist" style="margin-top:12px">
+                  <li class="key">ABAP 自建程式</li><li class="key">BAPI 整合</li>
+                  <li>Python 服務</li><li>Gemini API</li><li>43 個月歷史資料訓練</li>
+                  <li>80/20 時序切分</li><li>信賴門檻人工覆核機制</li>
+                </ul>
+              </article>
+
+              <article class="proj">
+                <h3>企業組織架構與 SD 銷售流程 從零建置</h3>
+                <p class="meta">教學實作環境 ・ 情境設定：馬達製造商採用數量合約</p>
+                <p>
+                  完整建立公司代碼、控制範圍、工廠、採購組織、銷售組織、配銷通路、產品線
+                  及各層指派關係，並串起物料主檔 → 儲存地點 → 庫存 → 銷售訂單的完整鏈路。
+                </p>
+                <p style="margin:0">
+                  過程中自行診斷並解決工廠與公司代碼指派缺漏、MM 期間未開通等典型阻礙，
+                  能明確指出每個錯誤訊息背後真正缺少的前置設定。
+                </p>
+              </article>
+            </section>
+
+            <!-- 技能 -->
+            <section class="card" aria-labelledby="r-skill">
+              <h2 id="r-skill">專業能力</h2>
+              <div style="margin-top:14px">
+                <div class="skillrow"><b>SAP 模組</b><span>SD 銷售與配銷、MM 物料管理、PP 生產規劃（MPS／MRP、計畫獨立需求）</span></div>
+                <div class="skillrow"><b>SAP 設定</b><span>企業組織架構建置、Sales Area 指派、物料主檔、期間開通、錯誤根因診斷</span></div>
+                <div class="skillrow"><b>開發整合</b><span>ABAP 自建程式、BAPI 呼叫、RFC 目的地設定、Python 服務、REST API、LLM 結構化輸出</span></div>
+                <div class="skillrow"><b>顧問技能</b><span>商業流程分析、痛點分層與優先級、專案範疇界定、效益論證、客戶簡報</span></div>
+                <div class="skillrow"><b>語言</b><span>中文（母語）、英文（TOEIC 準備中，並規劃海外研習計畫）</span></div>
+              </div>
+            </section>
+          </div>
+
+          <!-- 側欄 -->
+          <aside class="side">
+            <section class="card" aria-labelledby="r-contact">
+              <h2 id="r-contact">聯絡方式</h2>
+              <dl class="contact">
+                <dt>Email</dt>
+                <dd><a href="mailto:8787666hugo@gmail.com">8787666hugo@gmail.com</a></dd>
+                <dt>手機</dt>
+                <dd><a href="tel:+886900000000">09XX-XXX-XXX</a>　<span class="tip">（請自行替換）</span></dd>
+                <dt>所在地</dt>
+                <dd>台灣 ・ 台中</dd>
+                <dt>求職方向</dt>
+                <dd>ERP／SAP 導入顧問</dd>
+              </dl>
+            </section>
+
+            <section class="card" aria-labelledby="r-edu">
+              <h2 id="r-edu">學歷與證照</h2>
+              <dl class="contact">
+                <dt>大學</dt>
+                <dd>國立勤益科技大學<br>資訊管理系</dd>
+                <dt>高職</dt>
+                <dd>電子科</dd>
+                <dt>證照</dt>
+                <dd>ERP 規劃師</dd>
+              </dl>
+            </section>
+
+            <section class="card" aria-labelledby="r-tags">
+              <h2 id="r-tags">關鍵字</h2>
+              <ul class="taglist" style="margin-top:12px">
+                <li class="key">SAP S/4HANA</li><li class="key">ERP 導入</li>
+                <li>需求規劃</li><li>MRP</li><li>ABAP</li><li>Python</li>
+                <li>流程分析</li><li>製造業</li>
+              </ul>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ========== 說明會表單 ========== -->
+      <section class="view" id="view-form" aria-labelledby="formTitle">
+        <div class="page-title">
+          <h1 id="formTitle">說明會表單</h1>
+          <p>請完整填寫以下資料完成報名。標示「必填」的欄位為必要資訊，系統會在您輸入時即時檢查格式。</p>
+        </div>
+
+
+  <div class="no-print">
+    <p class="progress-label" id="progLabel">完成度 <span id="pct">0%</span></p>
+    <div class="progress" role="progressbar" aria-labelledby="progLabel"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="prog"><i id="bar"></i></div>
+  </div>
+
+  <nav class="summary-box no-print" id="errBox" role="alert" aria-live="assertive"
+       aria-labelledby="errTitle" tabindex="-1">
+    <h2 id="errTitle">尚有 <span id="errCount">0</span> 個欄位需要修正</h2>
+    <ol id="errList"></ol>
+  </nav>
+
+  <form id="form" novalidate autocomplete="on">
+
+    <!-- 1 基本個資 -->
+    <section class="card" aria-labelledby="sec-person">
+      <h2 id="sec-person"><span class="num">1</span>基本個人資料</h2>
+      <p class="hint">請以身分證件上的正式姓名填寫，以便製作名牌與研習證明。</p>
+      <div class="grid">
+
+        <div class="field">
+          <label class="req" for="name">姓名</label>
+          <input id="name" required name="name" type="text" inputmode="text" maxlength="30"
+                 placeholder="王小明" autocomplete="name" data-label="姓名">
+          <div class="tip">中文 2–15 字，或英文 2–30 字（可含空格與 ·）</div>
+          <div class="msg" data-for="name"></div>
+        </div>
+
+        <div class="field">
+          <label class="opt" for="nickname">英文姓名／暱稱</label>
+          <input id="nickname" name="nickname" type="text" maxlength="40"
+                 placeholder="Hugo Liu" data-label="英文姓名">
+          <div class="msg" data-for="nickname"></div>
+        </div>
+
+        <div class="field">
+          <fieldset>
+            <legend class="req">性別</legend>
+            <div class="choices" id="genderGroup">
+              <label class="chip"><input type="radio" name="gender" value="男" data-label="性別"><span>男</span></label>
+              <label class="chip"><input type="radio" name="gender" value="女"><span>女</span></label>
+              <label class="chip"><input type="radio" name="gender" value="不願透露"><span>不願透露</span></label>
+            </div>
+          </fieldset>
+          <div class="msg" data-for="gender"></div>
+        </div>
+
+        <div class="field">
+          <label class="req" for="birth">出生年月日</label>
+          <input id="birth" required name="birth" type="date" data-label="出生年月日">
+          <div class="tip">年齡須滿 15 歲；系統會自動換算 <span id="ageOut">—</span></div>
+          <div class="msg" data-for="birth"></div>
+        </div>
+
+        <div class="field">
+          <fieldset>
+            <legend class="req">證號類型</legend>
+            <div class="choices">
+              <label class="chip"><input type="radio" name="idType" value="id" checked data-label="證號類型"><span>本國身分證</span></label>
+              <label class="chip"><input type="radio" name="idType" value="arc"><span>居留證／統一證號</span></label>
+            </div>
+          </fieldset>
+          <div class="msg" data-for="idType"></div>
+        </div>
+
+        <div class="field">
+          <label class="req" for="idno">證件號碼</label>
+          <input id="idno" required name="idno" type="text" maxlength="10" placeholder="A123456789"
+                 spellcheck="false" autocapitalize="characters" data-label="證件號碼">
+          <div class="tip" id="idTip">格式：1 個英文字母 + 9 位數字，並會驗證檢查碼</div>
+          <div class="msg" data-for="idno"></div>
+        </div>
+
+        <div class="field">
+          <label class="req" for="mobile">手機號碼</label>
+          <input id="mobile" required name="mobile" type="tel" inputmode="numeric" maxlength="11"
+                 placeholder="0912-345-678" autocomplete="tel" data-label="手機號碼">
+          <div class="tip">台灣手機 09 開頭共 10 碼，輸入時自動加上連字號</div>
+          <div class="msg" data-for="mobile"></div>
+        </div>
+
+        <div class="field">
+          <label class="opt" for="phone">聯絡電話（市話）</label>
+          <input id="phone" name="phone" type="tel" inputmode="numeric" maxlength="15"
+                 placeholder="04-2392-4505 #1234" data-label="市話">
+          <div class="msg" data-for="phone"></div>
+        </div>
+
+        <div class="field">
+          <label class="req" for="email">電子信箱</label>
+          <input id="email" required name="email" type="email" inputmode="email" maxlength="80"
+                 placeholder="you@example.com" autocomplete="email" spellcheck="false" data-label="電子信箱">
+          <div class="tip">報名確認信將寄到此信箱，請確認拼字正確</div>
+          <div class="msg" data-for="email"></div>
+        </div>
+
+        <div class="field">
+          <label class="req" for="email2">再次確認電子信箱</label>
+          <input id="email2" required name="email2" type="email" inputmode="email" maxlength="80"
+                 placeholder="請再輸入一次" spellcheck="false" onpaste="return false" data-label="確認電子信箱">
+          <div class="tip">為避免打錯，此欄位不可貼上</div>
+          <div class="msg" data-for="email2"></div>
+        </div>
+
+        <div class="field full">
+          <label class="opt" for="emergency">緊急聯絡人／電話</label>
+          <input id="emergency" name="emergency" type="text" maxlength="40"
+                 placeholder="王大明 0987-654-321" data-label="緊急聯絡人">
+          <div class="msg" data-for="emergency"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2 學校／單位 -->
+    <section class="card" aria-labelledby="sec-org">
+      <h2 id="sec-org"><span class="num">2</span>學校／單位資訊</h2>
+      <p class="hint">選擇身分別後，下方欄位會自動切換為對應的必填項目。</p>
+      <div class="grid">
+
+        <div class="field full">
+          <fieldset>
+            <legend class="req">身分別</legend>
+            <div class="choices">
+              <label class="chip"><input type="radio" name="role" value="學生" data-label="身分別"><span>在校學生</span></label>
+              <label class="chip"><input type="radio" name="role" value="在職"><span>在職人士</span></label>
+              <label class="chip"><input type="radio" name="role" value="待業／轉職"><span>待業／轉職</span></label>
+              <label class="chip"><input type="radio" name="role" value="其他"><span>其他</span></label>
+            </div>
+          </fieldset>
+          <div class="msg" data-for="role"></div>
+        </div>
+
+        <!-- 學生 -->
+        <div class="field role-student" hidden>
+          <label class="req" for="school">學校名稱</label>
+          <input id="school" required name="school" type="text" maxlength="40" list="schoolList"
+                 placeholder="國立勤益科技大學" data-label="學校名稱">
+          <datalist id="schoolList">
+            <option>國立勤益科技大學</option><option>國立中央大學</option>
+            <option>國立台灣科技大學</option><option>國立雲林科技大學</option>
+            <option>逢甲大學</option><option>東海大學</option>
+          </datalist>
+          <div class="msg" data-for="school"></div>
+        </div>
+
+        <div class="field role-student" hidden>
+          <label class="req" for="dept">系所</label>
+          <input id="dept" required name="dept" type="text" maxlength="40" placeholder="資訊管理系" data-label="系所">
+          <div class="msg" data-for="dept"></div>
+        </div>
+
+        <div class="field role-student" hidden>
+          <label class="req" for="grade">年級</label>
+          <select id="grade" name="grade" required data-label="年級">
+            <option value="">請選擇</option>
+            <option>一年級</option><option>二年級</option><option>三年級</option>
+            <option>四年級</option><option>延畢／研究所</option>
+          </select>
+          <div class="msg" data-for="grade"></div>
+        </div>
+
+        <div class="field role-student" hidden>
+          <label class="opt" for="studentId">學號</label>
+          <input id="studentId" name="studentId" type="text" maxlength="20" spellcheck="false"
+                 placeholder="s1234567" data-label="學號">
+          <div class="msg" data-for="studentId"></div>
+        </div>
+
+        <!-- 在職 -->
+        <div class="field role-worker" hidden>
+          <label class="req" for="company">公司／單位名稱</label>
+          <input id="company" required name="company" type="text" maxlength="50"
+                 placeholder="泓記精密股份有限公司" data-label="公司名稱">
+          <div class="msg" data-for="company"></div>
+        </div>
+
+        <div class="field role-worker" hidden>
+          <label class="req" for="jobTitle">職稱</label>
+          <input id="jobTitle" required name="jobTitle" type="text" maxlength="40"
+                 placeholder="資訊部專員" data-label="職稱">
+          <div class="msg" data-for="jobTitle"></div>
+        </div>
+
+        <div class="field role-worker" hidden>
+          <label class="opt" for="years">相關工作年資</label>
+          <input id="years" name="years" type="number" min="0" max="60" step="1" placeholder="3" data-label="工作年資">
+          <div class="tip">請填 0–60 之間的整數</div>
+          <div class="msg" data-for="years"></div>
+        </div>
+
+        <div class="field role-other" hidden>
+          <label class="req" for="roleNote">身分別說明</label>
+          <input id="roleNote" required name="roleNote" type="text" maxlength="40"
+                 placeholder="例如：自由工作者、家長" data-label="身分別說明">
+          <div class="msg" data-for="roleNote"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3 場次 -->
+    <section class="card" aria-labelledby="sec-session">
+      <h2 id="sec-session"><span class="num">3</span>說明會場次與時間</h2>
+      <p class="hint">請選擇一個場次；額滿場次無法選取。報到時間為開始前 30 分鐘。</p>
+
+      <div class="sessions" id="sessionGroup">
+        <label class="session">
+          <input type="radio" name="session" value="A｜2026-10-03(六) 10:00-12:00 台中場" data-label="場次">
+          <span class="s-main">
+            <span class="s-title">A 場｜10 月 3 日（六）10:00–12:00</span>
+            <span class="s-meta">台中市｜勤益科大 圖書館 3F 國際會議廳 ・
+              <span class="badge left">尚有 24 位</span></span>
+          </span>
+        </label>
+        <label class="session">
+          <input type="radio" name="session" value="B｜2026-10-10(六) 14:00-16:00 台北場">
+          <span class="s-main">
+            <span class="s-title">B 場｜10 月 10 日（六）14:00–16:00</span>
+            <span class="s-meta">台北市｜中央大學 台北推廣中心 5F ・
+              <span class="badge few">僅剩 3 位</span></span>
+          </span>
+        </label>
+        <label class="session">
+          <input type="radio" name="session" value="C｜2026-10-17(六) 10:00-12:00 線上場">
+          <span class="s-main">
+            <span class="s-title">C 場｜10 月 17 日（六）10:00–12:00</span>
+            <span class="s-meta">線上 Microsoft Teams（報名後寄送連結）・
+              <span class="badge left">尚有 100 位</span></span>
+          </span>
+        </label>
+        <label class="session">
+          <input type="radio" name="session" value="D｜2026-10-24(六) 高雄場" disabled>
+          <span class="s-main">
+            <span class="s-title">D 場｜10 月 24 日（六）14:00–16:00</span>
+            <span class="s-meta">高雄市｜軟體園區 2F ・
+              <span class="badge none">已額滿</span></span>
+          </span>
+        </label>
+      </div>
+      <div class="msg" data-for="session" style="margin-top:8px"></div>
+
+      <div class="grid" style="margin-top:16px">
+        <div class="field">
+          <label class="req" for="people">參加人數（含本人）</label>
+          <input id="people" required name="people" type="number" min="1" max="5" step="1" value="1" data-label="參加人數">
+          <div class="tip">每筆報名最多 5 人；超過請分次報名</div>
+          <div class="msg" data-for="people"></div>
+        </div>
+
+        <div class="field" id="companionWrap" hidden>
+          <label class="req" for="companions">同行者姓名</label>
+          <input id="companions" required name="companions" type="text" maxlength="80"
+                 placeholder="以頓號分隔，例如：李小華、張小美" data-label="同行者姓名">
+          <div class="tip" id="companionTip">需填寫 <b>0</b> 位同行者姓名</div>
+          <div class="msg" data-for="companions"></div>
+        </div>
+
+        <div class="field">
+          <label class="req" for="arrive">預計抵達時間</label>
+          <input id="arrive" required name="arrive" type="time" data-label="預計抵達時間">
+          <div class="tip">建議 09:00–14:00 之間；線上場可填預計上線時間</div>
+          <div class="msg" data-for="arrive"></div>
+        </div>
+
+        <div class="field">
+          <fieldset>
+            <legend class="req">是否需要接駁車</legend>
+            <div class="choices">
+              <label class="chip"><input type="radio" name="shuttle" value="需要" data-label="接駁車"><span>需要</span></label>
+              <label class="chip"><input type="radio" name="shuttle" value="不需要"><span>不需要</span></label>
+            </div>
+          </fieldset>
+          <div class="msg" data-for="shuttle"></div>
+        </div>
+
+        <div class="field full" id="shuttleWrap" hidden>
+          <label class="req" for="shuttleStop">接駁上車地點</label>
+          <select id="shuttleStop" name="shuttleStop" required data-label="接駁上車地點">
+            <option value="">請選擇</option>
+            <option>台中高鐵站（烏日）</option>
+            <option>台中火車站</option>
+            <option>太原車站</option>
+            <option>台北車站 東三門</option>
+          </select>
+          <div class="msg" data-for="shuttleStop"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 其他需求 -->
+    <section class="card" aria-labelledby="sec-extra">
+      <h2 id="sec-extra"><span class="num">4</span>其他需求與問卷</h2>
+      <p class="hint">協助我們準備餐點與場地服務，選填欄位可留空。</p>
+      <div class="grid">
+
+        <div class="field">
+          <label class="req" for="meal">餐點需求</label>
+          <select id="meal" name="meal" required data-label="餐點需求">
+            <option value="">請選擇</option>
+            <option>葷食</option><option>素食</option>
+            <option>不需餐點</option><option>其他（請於下方備註說明）</option>
+          </select>
+          <div class="msg" data-for="meal"></div>
+        </div>
+
+        <div class="field">
+          <label class="opt" for="access">無障礙／場地協助需求</label>
+          <select id="access" name="access" data-label="無障礙需求">
+            <option value="">無特殊需求</option>
+            <option>需要輪椅席位</option>
+            <option>需要前排座位</option>
+            <option>需要手語或字幕協助</option>
+            <option>其他（請於備註說明）</option>
+          </select>
+          <div class="msg" data-for="access"></div>
+        </div>
+
+        <div class="field full">
+          <fieldset>
+            <legend class="req">如何得知本次說明會（可多選，至少 1 項）</legend>
+            <div class="choices" id="sourceGroup">
+              <label class="chip"><input type="checkbox" name="source" value="學校公告" data-label="得知管道"><span>學校公告</span></label>
+              <label class="chip"><input type="checkbox" name="source" value="系所老師"><span>系所老師</span></label>
+              <label class="chip"><input type="checkbox" name="source" value="社群媒體"><span>社群媒體</span></label>
+              <label class="chip"><input type="checkbox" name="source" value="朋友推薦"><span>朋友推薦</span></label>
+              <label class="chip"><input type="checkbox" name="source" value="電子報"><span>電子報</span></label>
+              <label class="chip"><input type="checkbox" name="source" value="其他"><span>其他</span></label>
+            </div>
+          </fieldset>
+          <div class="msg" data-for="source"></div>
+        </div>
+
+        <div class="field full">
+          <label class="opt" for="note">想了解的主題或備註</label>
+          <textarea id="note" name="note" maxlength="300"
+                    placeholder="例如：想了解 SAP 模組實習內容、是否提供研習證明…" data-label="備註"></textarea>
+          <div class="counter" id="noteCount">0 / 300</div>
+          <div class="msg" data-for="note"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 同意 -->
+    <section class="card" aria-labelledby="sec-privacy">
+      <h2 id="sec-privacy"><span class="num">5</span>個人資料告知事項</h2>
+      <article class="policy" tabindex="0" aria-labelledby="sec-privacy">
+        <p style="margin-top:0"><b>蒐集目的：</b>辦理本次說明會報名、報到、名牌與研習證明製作、活動通知及後續問卷調查。</p>
+        <p><b>個人資料類別：</b>姓名、性別、出生年月日、證件號碼、聯絡電話、電子信箱、學校或服務單位、餐點與場地需求。</p>
+        <p><b>利用期間與方式：</b>自蒐集日起至活動結束後一年內，以電子檔或紙本形式供主辦單位內部作業使用，不對外提供，屆期銷毀。</p>
+        <p><b>您的權利：</b>依個人資料保護法第 3 條，您得向主辦單位請求查詢、閱覽、複本、補充更正、停止處理利用或刪除個人資料。</p>
+        <p style="margin-bottom:0"><b>拒絕提供之影響：</b>若不提供必要資料，將無法完成報名手續。</p>
+      </article>
+      <div class="field">
+        <label class="agree">
+          <input type="checkbox" id="agree" name="agree" required data-label="個資同意">
+          <span>我已閱讀並同意上述個人資料告知事項，並確認所填資料真實無誤。<span style="color:var(--err)">（必須勾選）</span></span>
+        </label>
+        <div class="msg" data-for="agree"></div>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label class="agree">
+          <input type="checkbox" id="news" name="news">
+          <span>我願意收到主辦單位後續活動與課程資訊（選填）</span>
+        </label>
+      </div>
+    </section>
+
+    <div class="actions no-print">
+      <button type="submit" class="btn-primary" id="submitBtn">送出報名</button>
+      <button type="button" class="btn-ghost" id="checkBtn">先檢查表單</button>
+      <button type="reset" class="btn-ghost" id="resetBtn">清除重填</button>
+      <span class="tip" id="statusTip" aria-live="polite"></span>
+    </div>
+  </form>
+
+  <!-- 完成畫面 -->
+  <section class="card" id="done" aria-live="polite" aria-labelledby="doneTitle" tabindex="-1">
+    <div class="done-head">
+      <span class="tick">✓</span>
+      <div>
+        <h2 style="margin:0" id="doneTitle">報名資料已送出</h2>
+        <p class="hint" style="margin:0">報名編號 <span class="code" id="serial"></span>，送出時間 <span id="stamp"></span></p>
+      </div>
+    </div>
+    <p class="tip">以下為您填寫的內容，請確認無誤並自行保存。此頁為前端示範，資料僅顯示於本機、未上傳任何伺服器。</p>
+    <table class="recap">
+      <caption class="sr">您填寫的報名內容</caption>
+      <tbody id="recap"></tbody>
+    </table>
+    <div class="actions no-print" style="margin-top:18px">
+      <button type="button" class="btn-ghost" id="printBtn">列印／存成 PDF</button>
+      <button type="button" class="btn-ghost" id="jsonBtn">下載 JSON</button>
+      <button type="button" class="btn-primary" id="againBtn">再填一份</button>
+    </div>
+  </section>
+      </section>
+  </main>
+
+  <footer class="site-foot">
+    <p>© 2026 劉育齊 Hugo ・ <a href="mailto:8787666hugo@gmail.com">8787666hugo@gmail.com</a></p>
+    <p class="tip">本站為靜態單一檔案網頁；表單所填資料僅顯示於您的瀏覽器，不會上傳至任何伺服器。</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const form   = document.getElementById('form');
+  const errBox = document.getElementById('errBox');
+  const errList= document.getElementById('errList');
+  const errCount=document.getElementById('errCount');
+  const statusTip=document.getElementById('statusTip');
+  let submitting = false, submitted = false, touchedAny = false;
+
+  /* ---------- 小工具 ---------- */
+  const $  = s => document.querySelector(s);
+  const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
+  const val = n => { const e = form.elements[n]; return e ? String(e.value||'').trim() : ''; };
+  const radio = n => { const e = form.querySelector('input[name="'+n+'"]:checked'); return e ? e.value : ''; };
+  const checks = n => $$('input[name="'+n+'"]:checked').map(e=>e.value);
+  const visible = el => !!el && !el.closest('[hidden]');
+  const fieldOf = name => {
+    const node = nodesOf(name)[0];
+    return node ? node.closest('.field') : null;
+  };
+  const labelOf = name => {
+    const node = nodesOf(name)[0];
+    return (node && node.dataset && node.dataset.label) || name;
+  };
+
+  function nodesOf(name){
+    const el = form.elements[name];
+    if (!el) return [];
+    return el.length && !el.tagName ? Array.prototype.slice.call(el) : [el];
+  }
+
+  function setMsg(name, type, text){
+    const box = form.querySelector('.msg[data-for="'+name+'"]');
+    const f = fieldOf(name);
+    if (f) f.classList.remove('invalid','valid');
+    if (box){ box.className = 'msg'; box.textContent = ''; }
+    // aria-invalid：讓螢幕閱讀器知道這欄有錯
+    nodesOf(name).forEach(n=>{
+      if (type === 'error') n.setAttribute('aria-invalid','true');
+      else n.removeAttribute('aria-invalid');
+    });
+    if (!type) return;
+    if (box){
+      box.classList.add('show', type);
+      box.textContent = (type==='error'?'⚠ ':type==='warn'?'ℹ ':'✓ ') + text;
+    }
+    if (f && type === 'error') f.classList.add('invalid');
+    else if (f && type === 'good') f.classList.add('valid');
+  }
+
+  /* ---------- 驗證核心 ---------- */
+  // 台灣身分證 / 統一證號檢查碼
+  const LET = {A:10,B:11,C:12,D:13,E:14,F:15,G:16,H:17,I:34,J:18,K:19,L:20,M:21,N:22,
+               O:35,P:23,Q:24,R:25,S:26,T:27,U:28,V:29,W:32,X:30,Y:31,Z:33};
+  function idChecksum(letterVal, digits){ // digits: 9 位字串（含檢查碼）
+    let sum = Math.floor(letterVal/10) + (letterVal%10)*9;
+    for (let i=0;i<8;i++) sum += Number(digits[i]) * (8-i);
+    sum += Number(digits[8]);
+    return sum % 10 === 0;
+  }
+  function validTwId(s){
+    if (!/^[A-Z][12]\d{8}$/.test(s)) return false;
+    return idChecksum(LET[s[0]], s.slice(1));
+  }
+  function validArc(s){
+    // 新式：字母 + 8/9 + 8 碼；舊式：字母 + 字母 + 8 碼
+    if (/^[A-Z][89]\d{8}$/.test(s)) return idChecksum(LET[s[0]], s.slice(1));
+    if (/^[A-Z]{2}\d{8}$/.test(s))  return idChecksum(LET[s[0]], String(LET[s[1]]%10) + s.slice(2));
+    return false;
+  }
+  const COMMON_DOMAINS = ['gmail.com','yahoo.com.tw','yahoo.com','hotmail.com','outlook.com','icloud.com','msn.com'];
+  const TYPO = {'gmial.com':'gmail.com','gmai.com':'gmail.com','gmail.con':'gmail.com','gmail.cm':'gmail.com',
+                'gamil.com':'gmail.com','yaho.com':'yahoo.com','hotmai.com':'hotmail.com','outlok.com':'outlook.com',
+                'gmail.com.tw':'gmail.com'};
+
+  function age(birthStr){
+    const b = new Date(birthStr + 'T00:00:00');
+    if (isNaN(b)) return null;
+    const t = new Date();
+    let a = t.getFullYear() - b.getFullYear();
+    const m = t.getMonth() - b.getMonth();
+    if (m < 0 || (m === 0 && t.getDate() < b.getDate())) a--;
+    return a;
+  }
+
+  // 每個欄位的規則：回傳 [type, message] 或 null
+  const rules = {
+    name(){
+      const v = val('name');
+      if (!v) return ['error','請填寫姓名'];
+      if (/\d/.test(v)) return ['error','姓名不可包含數字'];
+      if (/[!@#$%^&*()_+=\[\]{};:"\\|,<>\/?]/.test(v)) return ['error','姓名不可包含特殊符號'];
+      const isCJK = /[\u4e00-\u9fff]/.test(v);
+      if (isCJK){
+        if (!/^[\u4e00-\u9fff・·\s]{2,15}$/.test(v)) return ['error','中文姓名請填 2–15 個中文字'];
+      } else {
+        if (!/^[A-Za-z][A-Za-z\s.'\-]{1,29}$/.test(v)) return ['error','英文姓名請填 2–30 個英文字母'];
+      }
+      return ['good','格式正確'];
+    },
+    nickname(){
+      const v = val('nickname');
+      if (!v) return null;
+      if (!/^[A-Za-z\u4e00-\u9fff][A-Za-z\u4e00-\u9fff\s.'\-]{0,39}$/.test(v)) return ['error','請勿使用特殊符號'];
+      return null;
+    },
+    gender(){ return radio('gender') ? null : ['error','請選擇性別']; },
+    birth(){
+      const v = val('birth');
+      const out = document.getElementById('ageOut');
+      if (!v){ out.textContent = '—'; return ['error','請選擇出生年月日']; }
+      const d = new Date(v + 'T00:00:00');
+      if (isNaN(d)){ out.textContent='—'; return ['error','日期格式不正確']; }
+      const a = age(v);
+      out.textContent = a + ' 歲（民國 ' + (d.getFullYear()-1911) + ' 年）';
+      if (d > new Date()) return ['error','出生日期不可晚於今天'];
+      if (a < 15) return ['error','本活動限滿 15 歲以上報名'];
+      if (a > 100) return ['error','請確認出生年份是否正確'];
+      const g = radio('gender'), idv = val('idno').toUpperCase();
+      if (/^[A-Z][12]/.test(idv) && (g==='男'||g==='女')){
+        const idG = idv[1]==='1' ? '男' : '女';
+        if (idG !== g) return ['warn','身分證號第 2 碼與所選性別不一致，請再確認'];
+      }
+      return ['good','滿 ' + a + ' 歲，符合資格'];
+    },
+    idType(){ return null; },
+    idno(){
+      const v = val('idno').toUpperCase();
+      const type = radio('idType') || 'id';
+      if (!v) return ['error','請填寫證件號碼'];
+      if (v.length !== 10) return ['error','證號應為 10 碼，目前 ' + v.length + ' 碼'];
+      if (type === 'id'){
+        if (!/^[A-Z]/.test(v)) return ['error','第 1 碼須為英文字母'];
+        if (!/^[A-Z][12]\d{8}$/.test(v)) return ['error','第 2 碼須為 1（男）或 2（女），其後 8 碼為數字'];
+        if (!validTwId(v)) return ['error','檢查碼錯誤，請確認號碼是否輸入正確'];
+      } else {
+        if (!validArc(v)) return ['error','居留證／統一證號格式或檢查碼錯誤'];
+      }
+      return ['good','證號驗證通過'];
+    },
+    mobile(){
+      const v = val('mobile').replace(/\D/g,'');
+      if (!v) return ['error','請填寫手機號碼'];
+      if (!/^09\d{8}$/.test(v)) return ['error','手機須為 09 開頭共 10 碼數字'];
+      if (/^(\d)\1{9}$/.test(v)) return ['error','號碼看起來不正確'];
+      return ['good','格式正確'];
+    },
+    phone(){
+      const raw = val('phone');
+      if (!raw) return null;
+      const v = raw.replace(/[\s()#＃-]/g,'').replace(/轉/,'');
+      if (!/^0\d{7,12}$/.test(v)) return ['error','市話請填區碼＋號碼，例如 04-23924505'];
+      return null;
+    },
+    email(){
+      const v = val('email');
+      if (!v) return ['error','請填寫電子信箱'];
+      if (/\s/.test(v)) return ['error','電子信箱不可有空白'];
+      if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(v)) return ['error','電子信箱格式不正確，需包含 @ 與網域'];
+      if (/\.\./.test(v)) return ['error','電子信箱不可有連續兩個點'];
+      const dom = v.split('@')[1].toLowerCase();
+      if (TYPO[dom]) return ['warn','您是不是想輸入 ' + v.split('@')[0] + '@' + TYPO[dom] + '？'];
+      if (!/\.[A-Za-z]{2,}$/.test(dom)) return ['error','網域結尾不正確'];
+      return ['good', COMMON_DOMAINS.indexOf(dom)>=0 ? '格式正確' : '格式正確（' + dom + '）'];
+    },
+    email2(){
+      const a = val('email').toLowerCase(), b = val('email2').toLowerCase();
+      if (!b) return ['error','請再次輸入電子信箱'];
+      if (a !== b) return ['error','兩次輸入的電子信箱不一致'];
+      return ['good','兩次輸入一致'];
+    },
+    emergency(){
+      const v = val('emergency');
+      if (!v) return null;
+      if (v.replace(/\D/g,'').length < 8) return ['warn','建議一併填寫聯絡電話'];
+      return null;
+    },
+    role(){ return radio('role') ? null : ['error','請選擇身分別']; },
+    school(){ const v=val('school'); if(!visible(form.school))return null;
+      if(!v) return ['error','請填寫學校名稱'];
+      if(v.length<2) return ['error','學校名稱至少 2 個字']; return ['good','已填寫']; },
+    dept(){ if(!visible(form.dept))return null; const v=val('dept');
+      if(!v) return ['error','請填寫系所名稱']; if(v.length<2) return ['error','系所名稱至少 2 個字']; return null; },
+    grade(){ if(!visible(form.grade))return null; return val('grade') ? null : ['error','請選擇年級']; },
+    studentId(){ if(!visible(form.studentId))return null; const v=val('studentId'); if(!v) return null;
+      if(!/^[A-Za-z0-9]{4,20}$/.test(v)) return ['error','學號僅能是 4–20 位英數字']; return null; },
+    company(){ if(!visible(form.company))return null; const v=val('company');
+      if(!v) return ['error','請填寫公司／單位名稱']; if(v.length<2) return ['error','名稱至少 2 個字']; return null; },
+    jobTitle(){ if(!visible(form.jobTitle))return null; return val('jobTitle') ? null : ['error','請填寫職稱']; },
+    years(){ if(!visible(form.years))return null; const v=val('years'); if(v==='') return null;
+      if(!/^\d+$/.test(v)) return ['error','年資請填整數'];
+      const n=Number(v); if(n<0||n>60) return ['error','年資請介於 0–60 之間']; return null; },
+    roleNote(){ if(!visible(form.roleNote))return null; return val('roleNote') ? null : ['error','請簡述您的身分別']; },
+    session(){ return radio('session') ? ['good','已選擇場次'] : ['error','請選擇一個場次']; },
+    people(){
+      const v = val('people');
+      if (v==='') return ['error','請填寫參加人數'];
+      if (!/^\d+$/.test(v)) return ['error','人數請填整數'];
+      const n = Number(v);
+      if (n < 1) return ['error','人數至少 1 人'];
+      if (n > 5) return ['error','每筆報名最多 5 人'];
+      if (radio('session').indexOf('B｜')===0 && n > 3) return ['error','B 場僅剩 3 個名額'];
+      return null;
+    },
+    companions(){
+      if (!visible(document.getElementById('companions'))) return null;
+      const need = Math.max(0, Number(val('people')||1) - 1);
+      const list = val('companions').split(/[、,，;；\s]+/).filter(Boolean);
+      if (!list.length) return ['error','請填寫 ' + need + ' 位同行者姓名'];
+      if (list.length !== need) return ['error','需填 ' + need + ' 位，目前填了 ' + list.length + ' 位'];
+      if (list.some(n => n.length < 2)) return ['error','每位同行者姓名至少 2 個字'];
+      return ['good','已填 ' + need + ' 位同行者'];
+    },
+    arrive(){
+      const v = val('arrive');
+      if (!v) return ['error','請填寫預計抵達時間'];
+      const [h,m] = v.split(':').map(Number);
+      const mins = h*60+m;
+      if (mins < 7*60 || mins > 18*60) return ['error','請填 07:00–18:00 之間的時間'];
+      const s = radio('session');
+      if (s.indexOf('A｜')===0 || s.indexOf('C｜')===0){
+        if (mins > 10*60) return ['warn','本場次 10:00 開始，建議提早抵達報到'];
+      } else if (s.indexOf('B｜')===0){
+        if (mins > 14*60) return ['warn','本場次 14:00 開始，建議提早抵達報到'];
+      }
+      return ['good','已填寫'];
+    },
+    shuttle(){ return radio('shuttle') ? null : ['error','請選擇是否需要接駁車']; },
+    shuttleStop(){ if(!visible(form.shuttleStop))return null; return val('shuttleStop') ? null : ['error','請選擇上車地點']; },
+    meal(){ return val('meal') ? null : ['error','請選擇餐點需求']; },
+    access(){ return null; },
+    source(){ return checks('source').length ? null : ['error','請至少勾選 1 項得知管道']; },
+    note(){
+      const v = val('note');
+      if (val('meal').indexOf('其他')===0 && v.length < 5) return ['error','餐點需求選「其他」時，請在備註說明（至少 5 字）'];
+      if (val('access').indexOf('其他')===0 && v.length < 5) return ['error','無障礙需求選「其他」時，請在備註說明（至少 5 字）'];
+      if (v.length > 300) return ['error','備註最多 300 字'];
+      return null;
+    },
+    agree(){ return document.getElementById('agree').checked ? null : ['error','請勾選同意個人資料告知事項']; }
+  };
+
+  const ORDER = ['name','nickname','gender','birth','idType','idno','mobile','phone','email','email2','emergency',
+                 'role','school','dept','grade','studentId','company','jobTitle','years','roleNote',
+                 'session','people','companions','arrive','shuttle','shuttleStop',
+                 'meal','access','source','note','agree'];
+
+  function runField(name, paint){
+    const r = rules[name] ? rules[name]() : null;
+    if (paint !== false) setMsg(name, r ? r[0] : null, r ? r[1] : '');
+    return r && r[0] === 'error' ? r[1] : null;   // 只有 error 會阻擋送出
+  }
+
+  function runAll(paint){
+    const errs = [];
+    ORDER.forEach(n => { const e = runField(n, paint); if (e) errs.push({name:n, msg:e}); });
+    return errs;
+  }
+
+  function showErrors(errs){
+    if (!errs.length){ errBox.classList.remove('show'); return; }
+    errCount.textContent = errs.length;
+    errList.innerHTML = '';
+    errs.forEach(e=>{
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.textContent = labelOf(e.name) + '：' + e.msg;
+      a.href = '#' + (nodesOf(e.name)[0] ? nodesOf(e.name)[0].id || '' : '');
+      a.addEventListener('click', ev=>{ ev.preventDefault(); focusField(e.name); });
+      li.appendChild(a); errList.appendChild(li);
+    });
+    errBox.classList.add('show');
+  }
+
+  function focusField(name){
+    const node = nodesOf(name)[0];
+    if (!node) return;
+    node.scrollIntoView({behavior:'smooth', block:'center'});
+    try { node.focus({preventScroll:true}); } catch(_){ node.focus(); }
+  }
+
+  /* ---------- 進度條 ---------- */
+  const REQUIRED = ['name','gender','birth','idno','mobile','email','email2','role','session','people','arrive','shuttle','meal','source','agree'];
+  function updateProgress(){
+    let done = 0;
+    REQUIRED.forEach(n=>{
+      const r = rules[n] ? rules[n]() : null;
+      if (!r || r[0] !== 'error') done++;
+    });
+    // 依身分別追加的必填
+    const extra = ['school','dept','grade','company','jobTitle','roleNote','shuttleStop','companions']
+      .filter(n=>visible(nodesOf(n)[0]));
+    let eDone = 0;
+    extra.forEach(n=>{ const r = rules[n] ? rules[n]() : null; if (!r || r[0] !== 'error') eDone++; });
+    const total = REQUIRED.length + extra.length;
+    const pct = Math.round((done + eDone) / total * 100);
+    document.getElementById('bar').style.width = pct + '%';
+    document.getElementById('pct').textContent = pct + '%';
+    const pb = document.getElementById('prog');
+    if (pb){ pb.setAttribute('aria-valuenow', pct);
+             pb.setAttribute('aria-valuetext', '必填欄位已完成 ' + pct + '%'); }
+  }
+
+  /* ---------- 防呆：輸入時即時整形 ---------- */
+  const idInput = document.getElementById('idno');
+  idInput.addEventListener('input', ()=>{
+    let v = idInput.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const head = v.slice(0, radio('idType')==='arc' ? 2 : 1).replace(/[^A-Z0-9]/g,'');
+    const tail = v.slice(head.length).replace(/[^0-9]/g,'');   // 首碼後只允許數字
+    idInput.value = (head + tail).slice(0,10);
+  });
+  $$('input[name="idType"]').forEach(r=>r.addEventListener('change', ()=>{
+    document.getElementById('idTip').textContent = radio('idType')==='arc'
+      ? '新式統一證號：1 字母 + 8/9 + 8 位數字；舊式：2 字母 + 8 位數字'
+      : '格式：1 個英文字母 + 9 位數字，並會驗證檢查碼';
+    if (val('idno')) runField('idno');
+    updateProgress();
+  }));
+
+  const mobile = document.getElementById('mobile');
+  mobile.addEventListener('input', ()=>{
+    const d = mobile.value.replace(/\D/g,'').slice(0,10);
+    mobile.value = d.length > 7 ? d.slice(0,4)+'-'+d.slice(4,7)+'-'+d.slice(7)
+                 : d.length > 4 ? d.slice(0,4)+'-'+d.slice(4) : d;
+  });
+
+  const phone = document.getElementById('phone');
+  phone.addEventListener('input', ()=>{ phone.value = phone.value.replace(/[^0-9\-#＃\s()轉]/g,''); });
+
+  ['name','nickname','emergency','school','dept','company','jobTitle','roleNote','companions'].forEach(n=>{
+    const el = form.elements[n];
+    if (!el) return;
+    el.addEventListener('input', ()=>{ el.value = el.value.replace(/[<>]/g,''); });
+    el.addEventListener('blur',  ()=>{ el.value = el.value.replace(/\s+/g,' ').trim(); });
+  });
+
+  ['email','email2'].forEach(n=>{
+    const el = form.elements[n];
+    el.addEventListener('input', ()=>{ el.value = el.value.replace(/[\s\u3000]/g,'').replace(/。/g,'.').replace(/＠/g,'@'); });
+  });
+
+  // 貼上防呆：確認信箱不可貼
+  document.getElementById('email2').addEventListener('paste', e=>{
+    e.preventDefault();
+    setMsg('email2','warn','為避免打錯，請手動輸入一次');
+  });
+
+  const note = document.getElementById('note'), noteCount = document.getElementById('noteCount');
+  note.addEventListener('input', ()=>{
+    const n = note.value.length;
+    noteCount.textContent = n + ' / 300';
+    noteCount.classList.toggle('over', n > 300);
+  });
+
+  // 人數 → 同行者欄位
+  const people = document.getElementById('people');
+  function syncCompanions(){
+    const n = Math.max(0, Number(people.value||1) - 1);
+    const wrap = document.getElementById('companionWrap');
+    wrap.hidden = n === 0;
+    document.getElementById('companionTip').innerHTML = '需填寫 <b>'+n+'</b> 位同行者姓名';
+    if (n === 0) setMsg('companions', null, '');
+  }
+  people.addEventListener('input', ()=>{
+    people.value = people.value.replace(/\D/g,'').slice(0,1);
+    syncCompanions(); runField('people'); updateProgress();
+  });
+
+  // 身分別 → 區塊切換
+  function syncRole(){
+    const r = radio('role');
+    $$('.role-student').forEach(e=> e.hidden = r !== '學生');
+    $$('.role-worker').forEach(e=> e.hidden = (r !== '在職'));
+    $$('.role-other').forEach(e=> e.hidden = !(r === '其他' || r === '待業／轉職'));
+    ['school','dept','grade','studentId','company','jobTitle','years','roleNote'].forEach(n=>{
+      const node = nodesOf(n)[0];
+      if (node && !visible(node)) setMsg(n, null, '');
+    });
+  }
+  $$('input[name="role"]').forEach(x=>x.addEventListener('change', ()=>{ syncRole(); runField('role'); updateProgress(); }));
+
+  // 接駁
+  $$('input[name="shuttle"]').forEach(x=>x.addEventListener('change', ()=>{
+    const need = radio('shuttle') === '需要';
+    document.getElementById('shuttleWrap').hidden = !need;
+    if (!need) setMsg('shuttleStop', null, '');
+    runField('shuttle'); updateProgress();
+  }));
+
+  $$('input[name="session"]').forEach(x=>x.addEventListener('change', ()=>{
+    runField('session'); runField('people'); runField('arrive'); updateProgress();
+  }));
+
+  /* ---------- 觸發時機：blur 驗證、input 修正 ---------- */
+  ORDER.forEach(n=>{
+    if (!form.elements[n]) return;
+    nodesOf(n).forEach(node=>{
+      node.addEventListener('blur', ()=>{ touchedAny = true; runField(n); updateProgress(); });
+      node.addEventListener('input', ()=>{
+        touchedAny = true;
+        const f = fieldOf(n);
+        if (f && f.classList.contains('invalid')) runField(n); // 已出錯才即時重驗，避免邊打邊罵
+        if (n === 'email') runField('email2', form.elements.email2.value ? true : false);
+        updateProgress();
+      });
+      node.addEventListener('change', ()=>{ touchedAny = true; runField(n); updateProgress(); });
+    });
+  });
+
+  // Enter 不直接送出（避免誤送），改為跳下一欄
+  form.addEventListener('keydown', e=>{
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && e.target.type !== 'submit'){
+      e.preventDefault();
+      const list = $$('#form input, #form select, #form textarea').filter(x=>!x.disabled && visible(x) && x.type!=='hidden');
+      const i = list.indexOf(e.target);
+      if (i >= 0 && i < list.length-1) list[i+1].focus();
+    }
+  });
+
+  document.getElementById('checkBtn').addEventListener('click', ()=>{
+    const errs = runAll(true);
+    showErrors(errs);
+    updateProgress();
+    statusTip.textContent = errs.length ? '' : '全部欄位檢查通過，可以送出。';
+    if (errs.length){ errBox.focus(); }
+  });
+
+  /* ---------- 送出 ---------- */
+  form.addEventListener('submit', e=>{
+    e.preventDefault();
+    if (submitting) return;
+    const errs = runAll(true);
+    updateProgress();
+    if (errs.length){
+      showErrors(errs);
+      errBox.focus();
+      focusField(errs[0].name);
+      statusTip.textContent = '';
+      return;
+    }
+    errBox.classList.remove('show');
+
+    // 防重複送出
+    submitting = true;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = '送出中…';
+    statusTip.textContent = '正在處理，請勿重複點擊或關閉頁面。';
+
+    setTimeout(()=>{ finish(collect()); }, 600); // 模擬處理
+  });
+
+  function collect(){
+    const d = {
+      報名編號: serialNo(),
+      送出時間: new Date().toLocaleString('zh-TW', {hour12:false}),
+      姓名: val('name'),
+      英文姓名: val('nickname') || '—',
+      性別: radio('gender'),
+      出生年月日: val('birth') + '（' + age(val('birth')) + ' 歲）',
+      證號類型: radio('idType')==='arc' ? '居留證／統一證號' : '本國身分證',
+      證件號碼: maskId(val('idno').toUpperCase()),
+      手機號碼: val('mobile'),
+      市話: val('phone') || '—',
+      電子信箱: val('email'),
+      緊急聯絡人: val('emergency') || '—',
+      身分別: radio('role')
+    };
+    if (radio('role') === '學生'){
+      d.學校 = val('school'); d.系所 = val('dept'); d.年級 = val('grade');
+      d.學號 = val('studentId') || '—';
+    } else if (radio('role') === '在職'){
+      d.公司單位 = val('company'); d.職稱 = val('jobTitle');
+      d.工作年資 = val('years') !== '' ? val('years') + ' 年' : '—';
+    } else {
+      d.身分別說明 = val('roleNote');
+    }
+    d.報名場次 = radio('session');
+    d.參加人數 = val('people') + ' 人';
+    if (Number(val('people')) > 1) d.同行者 = val('companions');
+    d.預計抵達時間 = val('arrive');
+    d.接駁車 = radio('shuttle') + (radio('shuttle')==='需要' ? '（' + val('shuttleStop') + '）' : '');
+    d.餐點需求 = val('meal');
+    d.無障礙需求 = val('access') || '無特殊需求';
+    d.得知管道 = checks('source').join('、');
+    d.備註 = val('note') || '—';
+    d.訂閱活動資訊 = document.getElementById('news').checked ? '願意' : '不願意';
+    return d;
+  }
+
+  function maskId(s){ return s ? s.slice(0,4) + '****' + s.slice(-2) : ''; }
+  function serialNo(){
+    const t = new Date();
+    const p = n => String(n).padStart(2,'0');
+    return 'BF' + t.getFullYear() + p(t.getMonth()+1) + p(t.getDate()) + '-' +
+           String(Math.floor(Math.random()*9000)+1000);
+  }
+
+  let lastData = null;
+  function finish(d){
+    lastData = d;
+    submitted = true;
+    document.getElementById('serial').textContent = d.報名編號;
+    document.getElementById('stamp').textContent = d.送出時間;
+    const tb = document.getElementById('recap');
+    tb.innerHTML = '';
+    Object.keys(d).forEach(k=>{
+      if (k === '報名編號' || k === '送出時間') return;
+      const tr = document.createElement('tr');
+      const th = document.createElement('th'); th.textContent = k;
+      const td = document.createElement('td'); td.textContent = d[k];
+      tr.appendChild(th); tr.appendChild(td); tb.appendChild(tr);
+    });
+    form.style.display = 'none';
+    document.querySelector('.progress').style.display = 'none';
+    document.querySelector('.progress-label').style.display = 'none';
+    const doneEl = document.getElementById('done');
+    doneEl.classList.add('show');
+    doneEl.scrollIntoView({behavior:'smooth', block:'start'});
+    try { doneEl.focus({preventScroll:true}); } catch(_){ doneEl.focus(); }
+  }
+
+  document.getElementById('printBtn').addEventListener('click', ()=>window.print());
+  document.getElementById('jsonBtn').addEventListener('click', ()=>{
+    if (!lastData) return;
+    const blob = new Blob([JSON.stringify(lastData, null, 2)], {type:'application/json;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (lastData.報名編號 || 'signup') + '.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  });
+  document.getElementById('againBtn').addEventListener('click', ()=>location.reload());
+
+  // 重填確認
+  document.getElementById('resetBtn').addEventListener('click', e=>{
+    if (touchedAny && !window.confirm('確定要清除已填寫的所有內容嗎？此動作無法復原。')){
+      e.preventDefault(); return;
+    }
+    setTimeout(()=>{
+      ORDER.forEach(n=>setMsg(n,null,''));
+      errBox.classList.remove('show');
+      statusTip.textContent = '';
+      document.getElementById('ageOut').textContent = '—';
+      noteCount.textContent = '0 / 300'; noteCount.classList.remove('over');
+      touchedAny = false;
+      syncRole(); syncCompanions();
+      document.getElementById('shuttleWrap').hidden = true;
+      updateProgress();
+    }, 0);
+  });
+
+  // 離開頁面提醒（填過但未送出）
+  window.addEventListener('beforeunload', e=>{
+    if (touchedAny && !submitted){ e.preventDefault(); e.returnValue = ''; }
+  });
+
+  /* ---------- 無障礙初始化：把提示與錯誤訊息綁到欄位上 ---------- */
+  function wireAria(){
+    ORDER.forEach(name=>{
+      const box = form.querySelector('.msg[data-for="'+name+'"]');
+      if (!box) return;
+      const mid = 'msg-' + name;
+      box.id = mid;
+      box.setAttribute('role','status');
+      box.setAttribute('aria-live','polite');
+
+      const f = fieldOf(name);
+      const tip = f ? f.querySelector('.tip') : null;
+      let tid = '';
+      if (tip){ tid = tip.id || ('tip-' + name); tip.id = tid; }
+
+      const ids = (tid ? tid + ' ' : '') + mid;
+      nodesOf(name).forEach(n=>{
+        const prev = n.getAttribute('aria-describedby');
+        n.setAttribute('aria-describedby', prev ? prev + ' ' + ids : ids);
+        if (n.required) n.setAttribute('aria-required','true');
+      });
+      // radio / checkbox 群組：用 fieldset 的 legend 當群組名稱
+      const fs = f ? f.querySelector('fieldset') : null;
+      if (fs){
+        const lg = fs.querySelector('legend');
+        if (lg){ lg.id = lg.id || ('lg-' + name); fs.setAttribute('role','group');
+                 fs.setAttribute('aria-labelledby', lg.id);
+                 fs.setAttribute('aria-describedby', mid); }
+      }
+    });
+    // 場次區塊本身是一組單選
+    const sg = document.getElementById('sessionGroup');
+    if (sg){ sg.setAttribute('role','radiogroup'); sg.setAttribute('aria-labelledby','sec-session'); }
+  }
+
+  wireAria();
+  syncRole(); syncCompanions(); updateProgress();
+})();
+
+/* ================= 頁面切換（hash 路由） ================= */
+(function(){
+  "use strict";
+  const ROUTES = {
+    '#/home':   {view:'view-home',   tab:'tab-home',   title:'劉育齊 Hugo｜個人網站'},
+    '#/resume': {view:'view-resume', tab:'tab-resume', title:'個人簡介｜劉育齊 Hugo'},
+    '#/form':   {view:'view-form',   tab:'tab-form',   title:'說明會表單｜劉育齊 Hugo'}
+  };
+  const views = Array.prototype.slice.call(document.querySelectorAll('.view'));
+  const tabs  = Array.prototype.slice.call(document.querySelectorAll('.tabs a'));
+
+  function go(hash, opts){
+    const r = ROUTES[hash] || ROUTES['#/home'];
+    views.forEach(v=>{
+      const on = v.id === r.view;
+      v.classList.toggle('active', on);
+      if (on) v.removeAttribute('inert'); else v.setAttribute('inert','');
+    });
+    tabs.forEach(t=>{
+      if (t.id === r.tab) t.setAttribute('aria-current','page');
+      else t.removeAttribute('aria-current');
+    });
+    document.title = r.title;
+    if (!(opts && opts.silent)){
+      window.scrollTo({top:0, behavior:'smooth'});
+      const h = document.getElementById(r.view).querySelector('h1');
+      if (h){ h.setAttribute('tabindex','-1');
+              try{ h.focus({preventScroll:true}); }catch(_){ h.focus(); } }
+    }
+  }
+
+  window.addEventListener('hashchange', ()=>go(location.hash));
+  const start = ROUTES[location.hash] ? location.hash : '#/home';
+  if (!ROUTES[location.hash]) history.replaceState(null,'','#/home');
+  go(start, {silent:true});
+})();
+</script>
+</body>
+</html>
