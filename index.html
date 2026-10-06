@@ -1345,8 +1345,13 @@
       node.addEventListener('input', ()=>{
         touchedAny = true;
         const f = fieldOf(n);
-        if (f && f.classList.contains('invalid')) runField(n); // 已出錯才即時重驗，避免邊打邊罵
-        if (n === 'email') runField('email2', form.elements.email2.value ? true : false);
+        // Email 欄位：每輸入一個字就即時驗證，格式不對立刻顯示紅字提示
+        if (n === 'email' || n === 'email2'){
+          if (form.elements[n].value.length > 0) runField(n);
+          else setMsg(n, null, '');
+          if (n === 'email' && form.elements.email2.value) runField('email2');
+        }
+        else if (f && f.classList.contains('invalid')) runField(n); // 其他欄位：已出錯才即時重驗
         updateProgress();
       });
       node.addEventListener('change', ()=>{ touchedAny = true; runField(n); updateProgress(); });
